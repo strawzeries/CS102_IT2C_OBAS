@@ -1,0 +1,64 @@
+---
+title: "Lab_Exercise_1_Obas"
+author: "Barbie Joy Obas"
+date: "2024-02-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages("tidyverse")
+install.packages("dplyr")
+install.packages("rvest")
+install.packages("httr")
+install.packages("polite")
+install.packages("ggplot2")
+install.packages("kableExtra")
+
+library(tidyverse)
+library(dplyr)
+library(rvest)
+library(httr)
+library(polite)
+library(ggplot2)
+library(kableExtra)
+polite::use_manners(save_as = 'polite_scrape.R')
+
+```
+
+```{r}
+name <- character(100)
+price <- character(100)
+peoples_vote <- character(50)
+episodes <- character(50)
+year <- character(50)
+
+url <-"https://www.amazon.com/s?crid=1CPOEGC32507U&k=liptint&ref=glow_cls&refresh=1&sprefix=liptin%2Caps%2C320"
+session <- bow(url, user_agent= "Educational Purposes")
+session
+
+#Name
+name <- scrape(session) %>%
+  html_nodes("span.a-size-base-plus.a-color-base.a-text-normal") %>%
+  html_text()
+
+name[1:100]
+
+#Price
+price <- scrape(session) %>%
+  html_nodes("span.a-price-fraction") %>%
+  html_text()
+
+price[1:100]
+
+#Ratings
+ratings <- scrape(session) %>%
+  html_nodes("a-icon.a-icon-star-small.a-star-small-4-5.aok-align-bottom") %>%
+  html_text()
+
+ratings[1:100]
+```
+
