@@ -1,0 +1,67 @@
+---
+title: "Lab_Exercise_2_Obas"
+author: "Barbie Joy Obas"
+date: "2024-02-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Scraping 50 products
+```{r}
+
+library(dplyr)
+library(rvest)
+library(polite)
+library(httr)
+library(selectr)
+
+scrapeAmazonReviews <- function(product_name, url_stub, pages) {
+  product_df <- data.frame()
+
+  for (page in pages) {
+    link <- paste0("https://www.amazon.com.au/",url_stub,"/ref=cm_cr_arp_d_paging_btm_next_", page, "?ie=UTF8&reviewerType=all_reviews&pageNumber=", page)
+    session <- bow(link, user_agent = "Educational Purpose")
+
+    scrapeNodes <- function(selector) {
+      scrape(session) %>%
+        html_nodes(selector) %>%
+        html_text(trim = TRUE)
+    }
+
+    scrapedTitle <- scrapeNodes("span.a-size-base.review-title.a-color-base.review-title-content.a-text-bold")[1:10]
+    scrapedReviewer <- scrapeNodes("span.a-profile-name")[1:10]
+    scrapedReview <- scrapeNodes("span.a-size-base.review-text.review-text-content")[1:10]
+    scrapedDate <- scrapeNodes("span.a-size-base.a-color-secondary.review-date")[1:10]
+    scrapedRating <- scrapeNodes("span.a-icon-alt")[1:10]
+    scrapedType <- scrapeNodes("span.a-size-mini.a-color-state.a-text-bold")[1:10]
+
+    product_df <- rbind(product_df, data.frame(
+      prod_name = product_name,
+      title = scrapedTitle,
+      reviewer = scrapedReviewer,
+      review = scrapedReview,
+      date = scrapedDate,
+      ratings = scrapedRating,
+      type_of_purchase = scrapedType
+    ))
+
+    Sys.sleep(3)
+  }
+
+  return(product_df)
+}
+```
+
+1-10 Product
+
+```{r}
+    
+product1 <- scrapeAmazonReviews(
+  "QINSEN-Womens-Sweettheart-Neckline-Stretch",
+  "QINSEN-Womens-Sweettheart-Neckline-Stretch/product-reviews/B0CGJ7JLZY",
+  3:7
+)
+```
