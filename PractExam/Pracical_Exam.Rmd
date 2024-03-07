@@ -2,7 +2,9 @@
 title: "Practical Exam 1"
 author: "Barbie Joy Obas"
 date: "2024-03-06"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -32,20 +34,19 @@ observations
 ###########
 #A.3. Is numeric a natural data type for the columns which are stored as such? Convert to integer when necessary.
 ```{r}
+numeric_columns <- sapply(warpbreaks, is.numeric)
+numeric_columns
 
-integer_col <- sapply(warpbreaks, is.integer) 
-integer_col
+integer_columns <- sapply(warpbreaks, is.integer) 
+integer_columns
 
 numeric_or_integer_columns <- warpbreaks[, numeric_columns | integer_columns] 
 numeric_or_integer_columns
+
 ```
 ###########
 #A.4. Error messages in R sometimes report the underlying type of an object rather than the user-level class. Derive from the following code and error message what the underlying type. Explain what is the error all about. Do not just copy the error message that was displayed.
-```{r}
-#The error is an object 'numeric_or_integer_columns' not found suggests that R couldn't find the object named numeric_or_integer_columns. This error commonly occurs when you try to reference an object that hasn't been defined or is out of scope.
-```
-##################################################################
-#B. Load the exampleFile.txt
+
 
 ```{r}
 data <- read.csv("exampleFile.txt")
