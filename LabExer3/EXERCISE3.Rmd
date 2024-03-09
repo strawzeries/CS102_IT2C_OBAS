@@ -1,0 +1,56 @@
+---
+title: "Lab_Exercise_3"
+author: "Barbie Joy Obas"
+date: "2024-03-09"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE}
+
+#install.packages("dplyr")
+#install.packages("rvest")
+#install.packages("polite")
+#install.packages("httr")
+
+library(dplyr)
+library(rvest)
+library(polite)
+library(httr)
+
+
+reviews <- data.frame()
+
+link <- "https://www.imdb.com/title/tt1517268/reviews/?ref_=tt_ov_rt"
+session <- bow(link, user_agent = "Educational Purpose")
+
+scrapeNodes <- function(selector) {
+  scrape(session) %>%
+    html_nodes(selector) %>%
+    html_text(trim = TRUE)
+}
+
+titleMovie <- scrapeNodes("a.subnav_heading")
+reviewer <- scrapeNodes("span.display-name-link")[1:10]
+scrapedDate <- scrapeNodes("span.review-date")[1:10]
+scrapedRating <- scrapeNodes("span.rating-other-user-rating")[1:10]
+scrapedReview <- scrapeNodes("div.text.show-more__control")[1:10]
+scrapedTitleReview <- scrapeNodes("a.title")[1:10]
+
+reviews <- rbind(reviews, data.frame(
+  movie_title = rep(titleMovie, 10),
+  reviewer_name = reviewer,
+  review_date = scrapedDate,
+  review_rating = scrapedRating,
+  review_content = scrapedReview,
+  review_title = scrapedTitleReview
+))
+
+reviews
+
+```
