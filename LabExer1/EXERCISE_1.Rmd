@@ -2,7 +2,9 @@
 title: "Lab_Exercise_1_Obas"
 author: "Barbie Joy Obas"
 date: "2024-02-08"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -286,6 +288,9 @@ MERGING TWO PRODUCTS
 ```{r}
 scraped_products <- rbind(LipstickProducts, DressProducts)
 scraped_products
+
+write.csv(scraped_products, "byCategory.csv")
+#View(scraped_products)
 ```
 
 #10 PRODUCTS I've selected
@@ -522,7 +527,7 @@ link2 <- "https://www.amazon.com.au/NYX-PROFESSIONAL-MAKEUP-Powder-Lippie/produc
 
 product2 <- scrapeProductDetails(link2)
 
-link3 <- "https://www.amazon.com.au/NYX-PROFESSIONAL-MAKEUP-Powder-Lippie/product-reviews/B07C45Y927/ref=cm_cr_getr_d_paging_btm_next_3?ie=UTF8&reviewerType=all_reviews&pageNumber=3"
+link3 <- "https://www.amazon.com.au/NYX-PROFESSIONAL-MAKEUP-Powder-Lippie/product-reviews/B07C45Y927/ref=cm_ycr_getr_d_paging_btm_next_3?ie=UTF8&reviewerType=all_reviews&pageNumber=3"
 product3 <- scrapeProductDetails(link3)
 
 All_Product_5 <- rbind(product1, product2, product3)
@@ -775,6 +780,75 @@ product3 <- scrapeProductDetails(link3)
 All_Product_10 <- rbind(product1, product2, product3)
 
 All_Product_10
+
+```
+
+```{r}
+
+all_reviews <- rbind(product1, product2, product3, product4, product5, product6, product7, product8, product9, product10)
+#all_reviews
+```
+
+
+## INSERT ALL REVIEWS DATA FRAME TO DATABASE
+
+## USED RMYSQL
+
+```{r, warning=FALSE}
+library(DBI)
+library(odbc)
+library(RMySQL)
+library(dplyr,dbplyr)
+connection <- dbConnect(RMySQL::MySQL(),
+                        dsn="MariaDB-connection",
+                        Server = "localhost",
+                        dbname = "2c_obas", 
+                        user = "root", 
+                        password = "") 
+
+```
+
+```{r}
+
+#install.packages("readr")
+library(readr)
+
+allrevs <- read.csv("all_reviews.csv")
+tail(allrevs)
+
+categs <- read.csv("byCategory.csv")
+tail(categs)
+
+```
+
+## Writing Table to Database
+
+```{r}
+
+dbWriteTable(connection, 'lab1Reviews', allrevs, append = TRUE)
+dbWriteTable(connection, 'lab1Products', categs, append = TRUE)
+
+```
+
+### LISTING TABLES AND FIELDS
+
+```{r}
+dbListTables(connection)
+dbListFields(connection,"lab1Reviews")
+dbListFields(connection,"lab1Products")
+```
+
+### READING DATA FROM TABLE
+
+```{r}
+
+review_data <- dbGetQuery(connection, "SELECT * FROM 2c_obas.lab1Reviews")
+glimpse(review_data)
+
+
+review_data2 <- dbGetQuery(connection, "SELECT * FROM 2c_obas.lab1Products")
+glimpse(review_data)
+
 
 ```
 
