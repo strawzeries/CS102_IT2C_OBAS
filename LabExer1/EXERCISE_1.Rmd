@@ -290,7 +290,6 @@ scraped_products
 write.csv(scraped_products, "byCategory.csv")
 #View(scraped_products)
 ```
-```
 
 #10 PRODUCTS I've selected
 
@@ -841,12 +840,13 @@ dbListFields(connection,"lab1Products")
 
 ```{r}
 
-review_data <- dbGetQuery(connection, "SELECT * FROM olivo_2c.lab1Reviews")
+review_data <- dbGetQuery(connection, "SELECT * FROM 2c_obas.lab1Reviews")
 glimpse(review_data)
 
 
-review_data2 <- dbGetQuery(connection, "SELECT * FROM olivo_2c.lab1Products")
+review_data2 <- dbGetQuery(connection, "SELECT * FROM 2c_obas.lab1Products")
 glimpse(review_data)
+
 
 ```
 
