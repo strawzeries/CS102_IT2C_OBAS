@@ -24,8 +24,6 @@ library(polite)
 library(httr)
 
 
-reviews <- data.frame()
-
 link <- "https://www.imdb.com/title/tt1517268/reviews/?ref_=tt_ov_rt"
 session <- bow(link, user_agent = "Educational Purpose")
 
@@ -42,15 +40,90 @@ scrapedRating <- scrapeNodes("span.rating-other-user-rating")[1:10]
 scrapedReview <- scrapeNodes("div.text.show-more__control")[1:10]
 scrapedTitleReview <- scrapeNodes("a.title")[1:10]
 
-reviews <- rbind(reviews, data.frame(
+reviews <- data.frame(
   movie_title = rep(titleMovie, 10),
   reviewer_name = reviewer,
   review_date = scrapedDate,
   review_rating = scrapedRating,
   review_content = scrapedReview,
   review_title = scrapedTitleReview
-))
+)
 
-reviews
+```
+
+
+# creating connections 
+
+```{r}
+
+library(dplyr, dbplyr)
+library(RMySQL)
+
+# Create database connection
+connection <- dbConnect(RMySQL::MySQL(),
+                        dsn="MariaDB-connection",
+                        Server = "localhost",
+                        dbname = "2c_obas", 
+                        user = "root", 
+                        password = "") 
+
+
+```
+
+#listing tables and fields
+
+```{r}
+# Check tables and fields in the database
+dbListTables(connection)
+dbListFields(connection, "reviews")
+```
+
+### READING DATA FROM DATABASE
+
+```{r}
+
+# Read data from the database
+review_data <- dbGetQuery(connection, "SELECT * FROM 2c_obas.reviews")
+glimpse(review_data)
+```
+
+### INSERTING REVIEWS TO DATABASE
+
+```{r}
+# Insert reviews into the database
+for (i in 1:nrow(reviews)) {
+    query <- paste0("INSERT INTO reviews (movie_title, reviewer_name, review_date, review_rating, review_content, review_title) 
+                  VALUES ('", reviews$movie_title[i],"','", reviews$reviewer_name[i], "','", reviews$review_date[i],"','", reviews$review_rating[i], "','",
+                  gsub("'","''", reviews$review_content[i]), "','", gsub("'","''", reviews$review_title[i]), "')")
+  
+  # Execute query
+  query_result <- dbSendQuery(connection, query)
+  
+  # Clear result after executing query
+  dbClearResult(query_result)
+}
+
+```
+
+### READ AND VIEW INSERTED DATA
+
+```{r}
+
+review_data <- dbGetQuery(connection, "SELECT * FROM 2c_obas.reviews")
+
+
+# VIEW REVIEWS without primary key "id"
+review_data[,c(2:7)]
+
+#View(review_data[,c(2:7)])
+
+# Export to csv
+write.csv(review_data[,c(2:7)], "review_data.csv")
+
+```
+
+```{r}
+# Close the database connection
+dbDisconnect(connection)
 
 ```
